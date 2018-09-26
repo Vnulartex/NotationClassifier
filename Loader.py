@@ -6,7 +6,7 @@ def Load(rep, composerNames):
     os.chdir("data")
     for dir in composerNames:
         os.chdir(dir)
-        with open (rep, "rb") as fp:
+        with open (rep + ".dat", "rb") as fp:
             data = pickle.load(fp)
         name = composerNames.index(dir)
         composers.append((name,data))

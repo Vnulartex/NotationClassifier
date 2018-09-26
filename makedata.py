@@ -16,7 +16,7 @@ def serialize():
   for composer in composers:
     label = composerNames[composer[0]]
     os.chdir(label)
-    with open("pitches","wb+") as f:
+    with open("pitches.dat","wb+") as f:
       pickle.dump(composer[1],f)
     os.chdir("..")
   os.chdir("..")
