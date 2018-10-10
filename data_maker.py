@@ -29,11 +29,20 @@ def _getCorpusPaths(composerNames, numScores):
 
 
 def _getDiskData(composerNames, scoreSource, numScores):
-    return [[
-        f"{scoreSource}/{composer}/{file}"
-        for file in os.listdir(f"{scoreSource}/{composer}")
-        if file.endswith(".mid")
-    ] for composer in composerNames]
+    if numScores is None:
+        paths = [[
+            f"{scoreSource}/{composer}/{file}"
+            for file in os.listdir(f"{scoreSource}/{composer}")
+            if file.endswith(".mid")
+        ] for composer in composerNames]
+    else: 
+        paths = [[
+            f"{scoreSource}/{composer}/{file}"
+            for file in os.listdir(f"{scoreSource}/{composer}")[:numScores]
+            if file.endswith(".mxl")
+        ] for composer in composerNames]
+
+    return paths
 
 
 def _save(composers, composer_names, target_file_name):
@@ -42,7 +51,7 @@ def _save(composers, composer_names, target_file_name):
         label = composer_names[composer[0]]
         os.chdir(label)
         with open(target_file_name, "wb+") as f:
-            pickle.dump(target_file_name, f)
+            pickle.dump(composer, f)
         os.chdir("..")
     os.chdir("..")
 
@@ -85,4 +94,5 @@ if __name__ == '__main__':
         composer_names=["debussy"],
         feature_extraction_func=_pitchCounts,
         target_file_name="pitches.dat",
-        scoreSource="../Data")
+        scoreSource="../Data",
+        numScores=1)
