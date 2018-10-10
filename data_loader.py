@@ -39,6 +39,7 @@ def Load(dataset_type, composer_names, train_ratio=0.8, all=True, num_data=50):
         training_data.extend([[x, y] for x in composer[1][:split]])
         test_data.extend([[x, y] for x in composer[1][split:]])
     random.shuffle(training_data)
+    random.shuffle(test_data)
 
     x_train = [a[0] for a in training_data]
     y_train = [a[1] for a in training_data]
