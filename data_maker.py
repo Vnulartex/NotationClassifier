@@ -56,9 +56,9 @@ def _makeData(score_paths, feature_extraction_func, use_corpus=True):
     composers = []
     for j, composer in enumerate(score_paths):
         scoreFeatures = []
-        print(f"composer {j}/{len(score_paths)}")
+        print(f"composer {j+1}/{len(score_paths)}")
         for i, score in enumerate(composer):
-            print(f"score {i}/{len(composer)}")
+            print(f"score {i+1}/{len(composer)}")
             if (use_corpus):
                 score = music21.corpus.parse(score)
             else:

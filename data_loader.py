@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def Load(dataset_type, composer_names):
@@ -11,12 +12,8 @@ def Load(dataset_type, composer_names):
     dataset_type: string - string representation of dataset type
                             (ie. "pitches")
     composer_names : list[string] - names of composers
-    train_ratio: double - percentage of data reserved for training data
-    all: bool - if all exaples from each composer should be loaded
-    num_data: int - number of examples to load from each directory,
-    ignored if all = True
 
-    returns touple (x_train, y_train, x_test, y_test)"""
+    returns touple (x_train,  x_test,y_train, y_test)"""
     composers = []
     os.chdir("data")
     for dir in composer_names:
@@ -31,4 +28,8 @@ def Load(dataset_type, composer_names):
     for composer in composers:
         y = composer[0]
         data.extend([[x, y] for x in composer[1]])
-    return (data)
+    x = [a[0] for a in data]
+    y = [a[1] for a in data]
+    X_train, X_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.33, random_state=42)
+    return (X_train, X_test, y_train, y_test)
