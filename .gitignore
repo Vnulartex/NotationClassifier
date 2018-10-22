@@ -1,0 +1,3 @@
+.mypy_cache/
+.ipinb_checkpoints/
+__pycache__/

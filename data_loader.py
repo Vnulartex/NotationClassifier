@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 
-def Load(dataset_type, composer_names, train_ratio=0.8, all=True, num_data=50):
+def Load(dataset_type, composer_names):
     """Load specified dataset from data folder
 
     params:
@@ -24,27 +24,11 @@ def Load(dataset_type, composer_names, train_ratio=0.8, all=True, num_data=50):
         with open(dataset_type + ".dat", "rb") as fp:
             data = pickle.load(fp)
         y = composer_names.index(dir)
-        if (all):
-            composers.append((y, data))
-        else:
-            composers.append((y, data[:num_data]))
+        composers.append((y, data))
         os.chdir("..")
-
     os.chdir("..")
-    split = int(len(composers[0][1]) * train_ratio)
-    training_data = []
-    test_data = []
+    data = []
     for composer in composers:
         y = composer[0]
-        training_data.extend([[x, y] for x in composer[1][:split]])
-        test_data.extend([[x, y] for x in composer[1][split:]])
-    random.shuffle(training_data)
-    random.shuffle(test_data)
-
-    x_train = [a[0] for a in training_data]
-    y_train = [a[1] for a in training_data]
-    x_test = [a[0] for a in test_data]
-    y_test = [a[1] for a in test_data]
-
-    return (np.array(x_train), np.array(y_train), np.array(x_test),
-            np.array(y_test))
+        data.extend([[x, y] for x in composer[1]])
+    return (data)

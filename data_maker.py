@@ -28,20 +28,16 @@ def _getCorpusPaths(composerNames, numScores):
     return scorePaths
 
 
-def _getDiskData(composerNames, scoreSource, numScores):
-    if numScores is None:
-        paths = [[
-            f"{scoreSource}/{composer}/{file}"
-            for file in os.listdir(f"{scoreSource}/{composer}")
-            if file.endswith(".mid")
-        ] for composer in composerNames]
-    else: 
-        paths = [[
-            f"{scoreSource}/{composer}/{file}"
-            for file in os.listdir(f"{scoreSource}/{composer}")[:numScores]
+def _getDiskData(composerNames, scoreSource, numScores=None):
+    paths = []
+    for composer in composerNames:
+        files = [
+            file for file in os.listdir(f"{scoreSource}/{composer}")
             if file.endswith(".mxl")
-        ] for composer in composerNames]
-
+        ]
+        if numScores is not None:
+            files = files[:numScores]
+        paths.append([f"{scoreSource}/{composer}/{file}" for file in files])
     return paths
 
 
@@ -51,14 +47,13 @@ def _save(composers, composer_names, target_file_name):
         label = composer_names[composer[0]]
         os.chdir(label)
         with open(target_file_name, "wb+") as f:
-            pickle.dump(composer, f)
+            pickle.dump(composer[1], f)
         os.chdir("..")
     os.chdir("..")
 
 
 def _makeData(score_paths, feature_extraction_func, use_corpus=True):
     composers = []
-    scoreFeatures = []
     for j, composer in enumerate(score_paths):
         scoreFeatures = []
         for score in composer:
@@ -82,10 +77,12 @@ def main(composer_names,
          scoreSource=None):
     if (scoreSource is None):
         scorePaths = _getCorpusPaths(composer_names, numScores)
-        composers = _makeData(scorePaths, feature_extraction_func, True)
+        composers = _makeData(
+            scorePaths, feature_extraction_func, use_corpus=True)
     else:
         scorePaths = _getDiskData(composer_names, scoreSource, numScores)
-        composers = _makeData(scorePaths, feature_extraction_func, False)
+        composers = _makeData(
+            scorePaths, feature_extraction_func, use_corpus=False)
     _save(composers, composer_names, target_file_name)
 
 
