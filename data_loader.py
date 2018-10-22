@@ -5,8 +5,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-def Load(dataset_type, composer_names):
-    """Load specified dataset from data folder
+def load(dataset_type, composer_names):
+    """load specified dataset from data folder
 
     params:
     dataset_type: string - string representation of dataset type
@@ -33,3 +33,9 @@ def Load(dataset_type, composer_names):
     X_train, X_test, y_train, y_test = train_test_split(
         x, y, test_size=0.33, random_state=42)
     return (X_train, X_test, y_train, y_test)
+
+    def main():
+        
+    
+    if __name__ == '__main__':
+        main()
