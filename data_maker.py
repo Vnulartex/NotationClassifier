@@ -91,5 +91,5 @@ if __name__ == '__main__':
         composer_names=["debussy"],
         feature_extraction_func=_pitchCounts,
         target_file_name="pitches.dat",
-        scoreSource="../Data",
-        numScores=1)
+        scoreSource="../Data")
+    print("done")
