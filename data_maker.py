@@ -4,9 +4,10 @@ import numpy as np
 import pandas as pd
 
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
 
-def __pitches_tones__(score):
+def pitches_tones(score):
     pitchCount = {"C": 0, "D": 0, "E": 0, "F": 0, "G": 0, "A": 0, "B": 0}
     for pitch in score.pitches:
         pitchCount[pitch.step] += 1
@@ -15,26 +16,13 @@ def __pitches_tones__(score):
     return values
 
 
-def __pitches_semitones__(score):
-    pitchCount = {"C": 0, "D": 0, "E": 0, "F": 0, "G": 0, "A": 0, "B": 0}
+def pitches_semitones(score):
+    pitchCount = [0] * 12
     for pitch in score.pitches:
-        pitchCount[pitch.step] += 1
-    values = np.array(list(pitchCount.values()), dtype="float")
+        pitchCount[pitch.pitchClass] += 1
+    values = np.array(list(pitchCount), dtype="float")
     values /= values.max()
     return values
-
-
-def __get_disk_data__(composerNames, scoreSource, numScores=None):
-    paths = []
-    for composer in composerNames:
-        files = [
-            file for file in os.listdir(f"{scoreSource}/{composer}")
-            if file.endswith(".mid")
-        ]
-        if numScores is not None:
-            files = files[:numScores]
-        paths.append([f"{scoreSource}/{composer}/{file}" for file in files])
-    return paths
 
 
 def __save__(composers, composer_names, target_file_name):
@@ -48,42 +36,36 @@ def __save__(composers, composer_names, target_file_name):
     os.chdir("..")
 
 
-def __make_data__(score_paths, feature_extraction_func, use_corpus=True):
-    composers = []
-    for j, composer in enumerate(score_paths):
-        scoreFeatures = []
-        print(f"composer {j+1}/{len(score_paths)}")
-        for i, score in enumerate(composer):
-            print(f"score {i+1}/{len(composer)}")
-            if (use_corpus):
-                score = music21.corpus.parse(score)
-            else:
-                score = music21.converter.parse(score)
-            key = score.analyze("key")
-            i = music21.interval.Interval(key.tonic,
-                                          music21.note.Note('C').pitch)
-            score = score.transpose(i)
-            scoreFeatures.append(feature_extraction_func(score))
-        composers.append((j, scoreFeatures))
-    return composers
+def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
+    score = music21.converter.parse(os.path.join(dir, filename))
+    key = score.analyze("key")
+    i = music21.interval.Interval(key.tonic,
+                                  music21.note.Note('C').pitch)
+    score = score.transpose(i)
+    data = [filename, composer, datasetType]
+    for func in funcs:
+        data.extend(func(score))
+    pd.DataFrame(np.array([data])
+                 ).to_csv("data.csv", header=False, index=False, mode="a")
 
 
-def main(composer_names,
-         feature_extraction_func,
-         target_file_name,
-         numScores=None,
-         scoreSource=None):
-    scorePaths = __get_disk_data__(composer_names, scoreSource, numScores)
-    composers = __make_data__(
-        scorePaths, feature_extraction_func, use_corpus=False)
-    __save__(composers, composer_names, target_file_name)
+def main():
+    root = "../Data"
+    composer = "debussy"
+    datasetType = "train"
+    funcs = [pitches_tones, pitches_semitones]
+
+    # # delete after first file
+    # pd.DataFrame(columns=["filename", "composer", "data_type", "st0", "st1",
+    #                       "st2", "st3", "st4", "st5", "st6", "t0", "t1", "t2",
+    #                       "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"]).to_csv("data.csv", index=False)
+
+    dir = os.path.join(root, composer, datasetType)
+    paths = [f for f in os.listdir(dir) if f.endswith(".mid")][-1:]
+    Parallel(
+        n_jobs=-1,
+        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths))
 
 
 if __name__ == '__main__':
-    main(
-        composer_names=["schubert"],
-        feature_extraction_func=__pitches_tones__,
-        target_file_name="pitches.dat",
-        scoreSource="../Data",
-        numScores=210)
-    print("done")
+    main()
