@@ -1,9 +1,9 @@
 import os
-import pickle
-import random
-
 import music21
 import numpy as np
+import pandas as pd
+
+from joblib import Parallel, delayed
 
 
 def __pitches_tones__(score):
@@ -24,20 +24,7 @@ def __pitches_semitones__(score):
     return values
 
 
-def __getCorpusPaths__(composerNames, numScores):
-    if (numScores is not None):
-        scorePaths = [
-            random.sample(music21.corpus.getComposer(composer), numScores)
-            for composer in composerNames
-        ]
-    else:
-        scorePaths = [
-            music21.corpus.getComposer(composer) for composer in composerNames
-        ]
-    return scorePaths
-
-
-def __getDiskData__(composerNames, scoreSource, numScores=None):
+def __get_disk_data__(composerNames, scoreSource, numScores=None):
     paths = []
     for composer in composerNames:
         files = [
@@ -61,7 +48,7 @@ def __save__(composers, composer_names, target_file_name):
     os.chdir("..")
 
 
-def __makeData__(score_paths, feature_extraction_func, use_corpus=True):
+def __make_data__(score_paths, feature_extraction_func, use_corpus=True):
     composers = []
     for j, composer in enumerate(score_paths):
         scoreFeatures = []
@@ -86,14 +73,9 @@ def main(composer_names,
          target_file_name,
          numScores=None,
          scoreSource=None):
-    if (scoreSource is None):
-        scorePaths = __getCorpusPaths__(composer_names, numScores)
-        composers = __makeData__(
-            scorePaths, feature_extraction_func, use_corpus=True)
-    else:
-        scorePaths = __getDiskData__(composer_names, scoreSource, numScores)
-        composers = __makeData__(
-            scorePaths, feature_extraction_func, use_corpus=False)
+    scorePaths = __get_disk_data__(composer_names, scoreSource, numScores)
+    composers = __make_data__(
+        scorePaths, feature_extraction_func, use_corpus=False)
     __save__(composers, composer_names, target_file_name)
 
 
