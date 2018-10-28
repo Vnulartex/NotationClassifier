@@ -25,17 +25,6 @@ def pitches_semitones(score):
     return values
 
 
-def __save__(composers, composer_names, target_file_name):
-    os.chdir("data")
-    for composer in composers:
-        label = composer_names[composer[0]]
-        os.chdir(label)
-        with open(target_file_name, "wb+") as f:
-            pickle.dump(composer[1], f)
-        os.chdir("..")
-    os.chdir("..")
-
-
 def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     score = music21.converter.parse(os.path.join(dir, filename))
     key = score.analyze("key")
@@ -51,7 +40,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "../Data"
-    composer = "debussy"
+    composer = "tchaikovsky"
     datasetType = "train"
     funcs = [pitches_tones, pitches_semitones]
 
@@ -61,10 +50,10 @@ def main():
     #                       "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"]).to_csv("data.csv", index=False)
 
     dir = os.path.join(root, composer, datasetType)
-    paths = [f for f in os.listdir(dir) if f.endswith(".mid")][-1:]
+    paths = [f for f in os.listdir(dir) if f.endswith(".mid")]
     Parallel(
         n_jobs=-1,
-        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths))
+        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths,ascii=True))
 
 
 if __name__ == '__main__':
