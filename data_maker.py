@@ -6,7 +6,16 @@ import music21
 import numpy as np
 
 
-def __pitchCounts__(score):
+def __pitches_tones__(score):
+    pitchCount = {"C": 0, "D": 0, "E": 0, "F": 0, "G": 0, "A": 0, "B": 0}
+    for pitch in score.pitches:
+        pitchCount[pitch.step] += 1
+    values = np.array(list(pitchCount.values()), dtype="float")
+    values /= values.max()
+    return values
+
+
+def __pitches_semitones__(score):
     pitchCount = {"C": 0, "D": 0, "E": 0, "F": 0, "G": 0, "A": 0, "B": 0}
     for pitch in score.pitches:
         pitchCount[pitch.step] += 1
@@ -33,7 +42,7 @@ def __getDiskData__(composerNames, scoreSource, numScores=None):
     for composer in composerNames:
         files = [
             file for file in os.listdir(f"{scoreSource}/{composer}")
-            if file.endswith(".mxl")
+            if file.endswith(".mid")
         ]
         if numScores is not None:
             files = files[:numScores]
@@ -90,8 +99,9 @@ def main(composer_names,
 
 if __name__ == '__main__':
     main(
-        composer_names=["debussy"],
-        feature_extraction_func=__pitchCounts__,
+        composer_names=["schubert"],
+        feature_extraction_func=__pitches_tones__,
         target_file_name="pitches.dat",
-        scoreSource="../Data")
+        scoreSource="../Data",
+        numScores=210)
     print("done")

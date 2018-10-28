@@ -30,12 +30,11 @@ def load(dataset_type, composer_names):
         data.extend([[x, y] for x in composer[1]])
     x = [a[0] for a in data]
     y = [a[1] for a in data]
-    X_train, X_test, y_train, y_test = train_test_split(
-        x, y, test_size=0.33, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.33)
     return (X_train, X_test, y_train, y_test)
 
-    def main():
-        
-    
-    if __name__ == '__main__':
-        main()
+
+def load_test():
+    with open("test.dat", "rb") as fp:
+        data = pickle.load(fp)
+    return data
