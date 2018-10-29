@@ -40,7 +40,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "../Data"
-    composer = "tchaikovsky"
+    composer = "mozart"
     datasetType = "train"
     funcs = [pitches_tones, pitches_semitones]
 
@@ -53,7 +53,7 @@ def main():
     paths = [f for f in os.listdir(dir) if f.endswith(".mid")]
     Parallel(
         n_jobs=-1,
-        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths,ascii=True))
+        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths, ascii=True))
 
 
 if __name__ == '__main__':
