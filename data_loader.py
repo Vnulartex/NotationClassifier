@@ -2,7 +2,7 @@ import os
 import pickle
 import random
 import numpy as np
-from sklearn.model_selection import train_test_split
+import pandas as pd
 
 
 def load(dataset_type, composer_names):
@@ -14,6 +14,8 @@ def load(dataset_type, composer_names):
     composer_names : list[string] - names of composers
 
     returns touple (x_train,  x_test,y_train, y_test)"""
+    df = pd.read_csv("data.csv")
+    pd.DataFrame.
     composers = []
     os.chdir("data")
     for dir in composer_names:
