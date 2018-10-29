@@ -40,8 +40,8 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "../Data"
-    composer = "mozart"
-    datasetType = "train"
+    composer = "tchaikovsky"
+    datasetType = "test"
     funcs = [pitches_tones, pitches_semitones]
 
     # # delete after first file
