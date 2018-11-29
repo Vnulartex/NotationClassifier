@@ -3,6 +3,7 @@ import music21
 import numpy as np
 import pandas as pd
 
+from collections import deque
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
@@ -12,20 +13,20 @@ from tqdm import tqdm
 import signal
 
 
-class timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
-        self.seconds = seconds
-        self.error_message = error_message
+# class timeout:
+#     def __init__(self, seconds=1, error_message='Timeout'):
+#         self.seconds = seconds
+#         self.error_message = error_message
 
-    def handle_timeout(self, signum, frame):
-        raise TimeoutError(self.error_message)
+#     def handle_timeout(self, signum, frame):
+#         raise TimeoutError(self.error_message)
 
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
+#     def __enter__(self):
+#         signal.signal(signal.SIGALRM, self.handle_timeout)
+#         signal.alarm(self.seconds)
 
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
+#     def __exit__(self, type, value, traceback):
+#         signal.alarm(0)
 
 
 def pitches_tones(score):
@@ -46,44 +47,79 @@ def pitches_semitones(score):
     return values
 
 
+def chords(score):
+    values = deque()
+    for note in score.flat.notes:
+        noteinfo = []
+        if note.isRest:
+            noteinfo.extend([0]*6)
+            noteinfo.append(-1)
+        elif note.isChord:
+            noteinfo.extend(note.intervalVector)
+            noteinfo.append(note.root().pitchClass)
+        else:
+            noteinfo.extend([0]*6)
+            noteinfo.append(note.pitch.pitchClass)
+        values.append(noteinfo)
+    return list(values)
+
+
+def durations(score):
+    values = [note.duration.quarterLength for note in score.flat.notes]
+    return values
+
+
 def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     path = os.path.join(dir, filename)
     if(os.path.getsize(path) > 10000):
-        with timeout(seconds=600):
-            try:
-                score = music21.converter.parse(path)
-                try:
-                    k = score.flat.keySignature.sharps
-                except AttributeError:
-                    k = score.analyze('key').sharps
-                except:
-                    print(f"{path} key could not be analyzed")
-                    return
-                score_t = score.transpose((k*5) % 12)
-                score.freeze
-                data = [filename, composer, datasetType]
-                for func in funcs:
-                    data.extend(func(score))
-                pd.DataFrame(np.array([data])
-                             ).to_csv("data.csv", header=False, index=False, mode="a")
+        # with timeout(seconds=600):
+        # try:
+        score = music21.converter.parse(path)
+        try:
+            k = score.flat.keySignature.sharps
+        except AttributeError:
+            k = score.analyze('key').sharps
+        except:
+            print(f"{path} key could not be analyzed")
+            return
+        score_t = score.transpose((k*5) % 12)
+        basename = filename.replace(".mid", "").replace(".mxl", "")
+        music21.converter.freeze(
+            score, fmt="pickle", fp=path+".dat")
+        music21.converter.freeze(
+            score_t, fmt="pickle", fp=path+"_t.dat")
+        data = [filename, composer, datasetType]
+        data.append(chords(score_t))
+        data.append(chords(score))
+        data.append(durations(score))
+        pd.DataFrame([data]).to_csv(
+            "chords.csv", header=False, index=False, mode="a")
+        # except:
+        #     print(f"file {filename} file could not be parsed")
 
 
 def main():
-    root = "../Data"
-    composer = "brahms"
-    datasetType = "test"
-    funcs = [pitches_tones, pitches_semitones]
+    root = "C:\\Users\\jiriv\\Disk Google\\Ročníkový projekt\\Data-preprocessed"
+    composers = ["debussy","mozart","beethoven","victoria","scarlatti"]
+    datasetType = ["train","test"]
+    funcs = [chords, durations]
 
-    # # delete after first file
-    # pd.DataFrame(columns=["filename", "composer", "data_type", "st0", "st1",
-    #                       "st2", "st3", "st4", "st5", "st6", "t0", "t1", "t2",
-    #                       "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"]).to_csv("data.csv", index=False)
-
-    dir = os.path.join(root, composer, datasetType)
-    paths = [f for f in os.listdir(dir) if f.endswith(".mid")]
-    Parallel(
-        n_jobs=-1,
-        backend="multiprocessing")(delayed(extract)(f, dir, composer, datasetType, funcs) for f in tqdm(paths, ascii=True))
+    # delete after first file
+    # df = pd.DataFrame(columns=["filename", "composer", "data_type",
+    #                            "chords_t", "chords", "durations"])
+    # df = df.set_index("filename")
+    # df.to_csv("chords.csv")
+    for composer in composers:
+        for data_type in datasetType:
+            dir = os.path.join(root, composer, data_type)
+            df = pd.read_csv("chords.csv")
+            done = df.iloc[:,0].values
+            paths = [f for f in os.listdir(dir) if f.endswith(".mxl") and f not in done]
+            # paths = ["ar2.mid"]
+            Parallel(
+                n_jobs=-1,
+                backend="multiprocessing")(delayed(extract)(f, dir, composer, data_type, funcs) 
+                for f in tqdm(paths, desc=f"processing {composer}/{data_type}"))
 
 
 if __name__ == '__main__':
