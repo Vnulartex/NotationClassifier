@@ -25,13 +25,23 @@ def load(dataset_type, composer_names, train_count=None):
 
     returns touple (x_train,  x_test,y_train, y_test)"""
 
-    dataType = ["st0", "st1", "st2", "st3", "st4", "st5",
-                "st6", "st7", "st8", "st9", "st10", "st11"]
-
     if dataset_type == "t":
         dataType = ["t0", "t1", "t2", "t3", "t4", "t5"]
 
-    df = pd.read_csv("data.csv")
+    elif dataset_type == "st":
+        dataType = ["st0", "st1", "st2", "st3", "st4", "st5",
+                    "st6", "st7", "st8", "st9", "st10", "st11"]
+
+    elif dataset_type == "chords":
+        dataType = ["chords"]
+
+    elif dataset_type == "chords_t":
+        dataType = ["chords_t"]
+
+    elif dataset_type == "durations":
+        dataType = ["durations"]
+
+    df = pd.read_csv("chords.csv")
 
     X_train, X_test, y_train, y_test = [], [], [], []
     for i, comp in enumerate(composer_names):
