@@ -54,8 +54,8 @@ def chords(score: music21.stream):
         if note.isRest:
             noteinfo.append(-1)
         elif note.isChord:
-            noteinfo.extend(note.primeForm)
             noteinfo.append(note.root().pitchClass)
+            noteinfo.extend(note.primeForm)
         else:
             noteinfo.append(note.pitch.pitchClass)
         values.append(noteinfo)
@@ -71,7 +71,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     path = os.path.join(dir, filename)
     dat_path = path+".dat"
     dat_path_t = path+"_t.dat"
-    if(os.path.exists(dat_path) and os.path.exists(dat_path_t)): #exist already parsed dat file
+    if(os.path.exists(dat_path) and os.path.exists(dat_path_t)):  # exist already parsed dat file
         score = music21.converter.thaw(dat_path)
         score_t = music21.converter.thaw(dat_path_t)
     elif(os.path.getsize(path) < 10000):
@@ -105,7 +105,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "C:\\Users\\jiriv\\Disk Google\\ROP\\Data-preprocessed"
-    composers = ["debussy", "mozart", "beethoven", "victoria", "scarlatti"]
+    composers = ["debussy", "victoria", "tchaikovsky"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
 
