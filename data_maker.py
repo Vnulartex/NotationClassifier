@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 # timeout function that lets move on beyond too big files.
 # by Thomas Ahle: http://stackoverflow.com/a/22348885
-import signal
+#import signal
 
 
 # class timeout:
@@ -54,10 +54,10 @@ def chords(score: music21.stream):
         if note.isRest:
             noteinfo.append(-1)
         elif note.isChord:
-            noteinfo.append(note.root().pitchClass)
+            noteinfo.append(note.root().pitchClass+1)
             noteinfo.extend(note.primeForm)
         else:
-            noteinfo.append(note.pitch.pitchClass)
+            noteinfo.append(note.pitch.pitchClass+1)
         values.append(noteinfo)
     return list(values)
 
@@ -108,12 +108,22 @@ def main():
     composers = ["debussy", "victoria", "tchaikovsky"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
+    filename = "chords.csv"
+    ovt = None
+    while True:
+        key = input(f"Overwrite file {filename}? [Y/N]\n")
+        if(key == "y" or key == "Y"):
+            ovt = True
+        elif(key == "n" or key == "n"):
+            ovt = False
+        if(ovt is not None):
+            break
 
-    # delete after first file
-    df = pd.DataFrame(columns=["filename", "composer", "data_type",
-                               "chords_t", "chords", "durations"])
-    df = df.set_index("filename")
-    df.to_csv("chords.csv")
+    if ovt:
+        df = pd.DataFrame(columns=["filename", "composer", "data_type",
+                                   "chords_t", "chords", "durations"])
+        df = df.set_index("filename")
+        df.to_csv(filename)
     for composer in composers:
         for data_type in datasetType:
             dir = os.path.join(root, composer, data_type)
