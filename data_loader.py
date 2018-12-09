@@ -51,6 +51,8 @@ def load_chords(dataset_type, composer_names, train_count=None):
 
     df = pd.read_csv("chords.csv")
     maxlen = 0
+    suma = 0
+    count = 0
     X_train, X_test, y_train, y_test = [], [], [], []
     for i, comp in enumerate(composer_names):
         comp_train = df.loc[(df["composer"] == comp) & (
@@ -62,7 +64,10 @@ def load_chords(dataset_type, composer_names, train_count=None):
         if(train_count is not None):
             comp_train = comp_train[:train_count]
 
-        maxlen2 = max((len(a) for a in comp_train))
+        lens = [len(a) for a in comp_train]
+        suma += sum(lens)
+        count += len(lens)
+        maxlen2 = max(lens)
         if(maxlen2 > maxlen):
             maxlen = maxlen2
 
@@ -72,7 +77,10 @@ def load_chords(dataset_type, composer_names, train_count=None):
         comp_test = [[feature[0]
                       for feature in ast.literal_eval(a[0])] for a in comp_test]
 
-        maxlen2 = max((len(a) for a in comp_test))
+        lens = [len(a) for a in comp_test]
+        suma += sum(lens)
+        count += len(lens)
+        maxlen2 = max(lens)
         if(maxlen2 > maxlen):
             maxlen = maxlen2
 
@@ -82,6 +90,8 @@ def load_chords(dataset_type, composer_names, train_count=None):
         y_test.extend([i]*len(comp_test))
 
     X_train, X_test = pad_data(X_train, X_test, maxlen)
+    mean = suma/count
+    print("mean:", mean, "max:", maxlen)
     return shuffle_data(X_train, X_test, y_train, y_test)
 
 
@@ -127,7 +137,8 @@ def load(dataset_type, composer_names, train_count=None):
 
 
 def main():
-    print(load_chords("chords_t", ["debussy"])[0][0])
+    print(load_chords("chords_t", [
+          "debussy", "mozart", "beethoven", "scarlatti", "victoria"])[0][0])
     # load("t", ["debussy", "haydn"])
 
 
