@@ -28,12 +28,19 @@ def shuffle_data(X_train, X_test, y_train, y_test):
     return (X_train, X_test, y_train, y_test)
 
 
-def pad_data(X_train, X_test, pad_length):
+def pad_data(X_train, X_test, n):
     for a in X_train:
-        a.extend([0] * (pad_length - len(a)))
+        a.extend([0] * (n - len(a)))
     for a in X_test:
-        a.extend([0] * (pad_length - len(a)))
-    return (X_train, X_test)
+        a.extend([0] * (n - len(a)))
+
+
+def pad_or_truncate(a, n):
+    for i, x in enumerate(a):
+        if(len(x) < n):
+            x.extend([0] * (n-len(x)))
+        else:
+            a[i] = x[:n]
 
 
 def load_chords(dataset_type, composer_names, train_count=None):
@@ -89,8 +96,11 @@ def load_chords(dataset_type, composer_names, train_count=None):
         y_train.extend([i]*len(comp_train))
         y_test.extend([i]*len(comp_test))
 
-    X_train, X_test = pad_data(X_train, X_test, maxlen)
-    mean = suma/count
+    mean = suma//count
+    # pad_data(X_train, X_test, maxlen)
+    pad_or_truncate(X_train, mean)
+    pad_or_truncate(X_test, mean)
+
     print("mean:", mean, "max:", maxlen)
     return shuffle_data(X_train, X_test, y_train, y_test)
 
@@ -137,8 +147,8 @@ def load(dataset_type, composer_names, train_count=None):
 
 
 def main():
-    print(load_chords("chords_t", [
-          "debussy", "mozart", "beethoven", "scarlatti", "victoria"])[0][0])
+    load_chords("chords_t", ["debussy", "mozart",
+                             "beethoven", "tchaikovsky", "victoria"])
     # load("t", ["debussy", "haydn"])
 
 

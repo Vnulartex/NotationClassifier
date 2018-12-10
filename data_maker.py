@@ -105,7 +105,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "C:\\Users\\jiriv\\Disk Google\\ROP\\Data-preprocessed"
-    composers = ["debussy", "victoria", "tchaikovsky"]
+    composers = ["scarlatti", "bach"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
     filename = "chords.csv"
@@ -133,7 +133,7 @@ def main():
                 dir) if f.endswith(".mxl") and f not in done]
             # paths = ["ar2.mid"]
             Parallel(
-                n_jobs=-1,
+                n_jobs=1,
                 backend="multiprocessing")(delayed(extract)(f, dir, composer, data_type, funcs)
                                            for f in tqdm(paths, desc=f"processing {composer}/{data_type}"))
 
