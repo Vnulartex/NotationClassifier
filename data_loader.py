@@ -1,4 +1,3 @@
-import os
 import random
 import numpy as np
 import pandas as pd
@@ -62,8 +61,8 @@ def load(features_type, composer_names, train_count=None):
 
 
 def main():
-    load("chords_t", ["debussy", "mozart",
-                      "beethoven", "tchaikovsky", "victoria"])
+    print(len(load("chords_t", ["debussy", "mozart",
+                                "beethoven", "tchaikovsky", "victoria"])[0]))
     # load("t", ["debussy", "haydn"])
 
 
