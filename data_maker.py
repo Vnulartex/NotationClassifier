@@ -74,7 +74,7 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     if(os.path.exists(dat_path) and os.path.exists(dat_path_t)):  # exist already parsed dat file
         score = music21.converter.thaw(dat_path)
         score_t = music21.converter.thaw(dat_path_t)
-    elif(os.path.getsize(path) < 10000):
+    elif(os.path.getsize(path) < 1e5):
         return
         # with timeout(seconds=600):
         # try:
@@ -104,8 +104,8 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
 
 
 def main():
-    root = "C:\\Users\\jiriv\\Disk Google\\ROP\\Data-preprocessed"
-    composers = ["debussy", "victoria", "tchaikovsky"]
+    root = "D:\\Disk Google\\ROP\\Data-preprocessed"
+    composers = ["debussy", "victoria", "tchaikovsky", "mozart", "beethoven"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
     filename = "chords.csv"
@@ -133,7 +133,7 @@ def main():
                 dir) if f.endswith(".mxl") and f not in done]
             # paths = ["ar2.mid"]
             Parallel(
-                n_jobs=-1,
+                n_jobs=1,
                 backend="multiprocessing")(delayed(extract)(f, dir, composer, data_type, funcs)
                                            for f in tqdm(paths, desc=f"processing {composer}/{data_type}"))
 
