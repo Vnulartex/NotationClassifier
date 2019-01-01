@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import ast
 from collections import Counter
+from fractions import Fraction
 
 
 def get_data_counts(y, composer_names):
@@ -44,8 +45,8 @@ def load(features_type, composer_names, train_count=None):
             data = df.loc[(df["composer"] == comp) & (
                 df["data_type"] == d_type), features_type].values
 
-            data = [[feature[0] for feature in ast.literal_eval(
-                piece[0])] for piece in data]
+            data = [[feature for feature in eval(
+                    piece[0])] for piece in data]
 
             if(train_count is not None):
                 data = data[:train_count]
@@ -61,8 +62,10 @@ def load(features_type, composer_names, train_count=None):
 
 
 def main():
-    print(len(load("chords_t", ["debussy", "mozart",
-                                "beethoven", "tchaikovsky", "victoria"])[0]))
+    y_train = load("chords_t", ["debussy", "mozart",
+                                "beethoven", "tchaikovsky", "victoria"])[2]
+    print(get_data_counts(y_train, ["debussy", "mozart",
+                                    "beethoven", "tchaikovsky", "victoria"]))
     # load("t", ["debussy", "haydn"])
 
 
