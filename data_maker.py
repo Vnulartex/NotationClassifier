@@ -67,6 +67,15 @@ def durations(score):
     return values
 
 
+def parse(path):
+    score = music21.converter.parse(path)
+    try:
+        k = score.flat.keySignature.sharps
+    except AttributeError:
+        k = score.analyze('key').sharps
+    return (score, k)
+
+
 def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     path = os.path.join(dir, filename)
     dat_path = path+".dat"
@@ -79,16 +88,8 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
         # with timeout(seconds=600):
         # try:
     else:
-        score = music21.converter.parse(path)
-        try:
-            k = score.flat.keySignature.sharps
-        except AttributeError:
-            k = score.analyze('key').sharps
-        except:
-            print(f"{path} key could not be analyzed")
-            return
+        score, k = parse(path)
         score_t = score.transpose((k*5) % 12)
-        basename = filename.replace(".mid", "").replace(".mxl", "")
         music21.converter.freeze(
             score, fmt="pickle", fp=path+".dat")
         music21.converter.freeze(
