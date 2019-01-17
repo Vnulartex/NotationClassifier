@@ -86,8 +86,8 @@ def load(features_type, composer_names, train_count=None, df=None):
 
 
 def main():
-    print(load_folder("midis","chords"))
-    
+    print(load_folder("midis", "chords"))
+
     # y_train = load("chords_t", ["debussy", "mozart",
     #                             "beethoven", "tchaikovsky", "victoria"])[2]
     # print(get_data_counts(y_train, ["debussy", "mozart",
