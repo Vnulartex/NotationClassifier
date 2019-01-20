@@ -28,6 +28,10 @@ def pad_or_truncate(a, n):
             a[i] = x[:n]
 
 
+def get_root(X):
+    return [str([chord[0] for chord in example]) for example in X]
+
+
 def load_folder(folder, dataset):
     if (dataset not in ["chords", "chords_t", "durations"]):
         raise ValueError("Invalid dataset type")
@@ -36,7 +40,7 @@ def load_folder(folder, dataset):
         folder) if f.endswith(".mxl") or f.endswith(".mid")]
 
     x = []
-    for path in paths:
+    for path in paths[:1]:
         score, k = maker.parse(path)
         if(dataset == "chords_t"):
             score_t = score.transpose((k*5) % 12)

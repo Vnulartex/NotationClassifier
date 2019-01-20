@@ -26,11 +26,16 @@ def main():
     clfs = load_clf()
     print("loading data...")
     data, filenames = loader.load_folder("input", "chords_t")
+    data = loader.get_root(data)
     data = vectorize(data, 4)
+    print(data.shape)
     for clf in clfs:
         print(clf)
-        for x, file in zip(data, filenames):
-            print(file, ":", clf.predict(np.reshape(x, (1, -1))))
+        print(filenames)
+        print(clf.predict(data))
+
+        # for x, file in zip(data, filenames):
+        #     print(file, ":", clf.predict(np.reshape(x, (1, -1))))
 
 
 if __name__ == "__main__":
