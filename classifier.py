@@ -27,12 +27,17 @@ def main():
     print("loading data...")
     data, filenames = loader.load_folder("input", "chords_t")
     data = loader.get_root(data)
-    data = vectorize(data, 4)
-    print(data.shape)
-    for clf in clfs:
+    for clfobj in clfs:
+        clf = clfobj.clf
+        composers = clfobj.composers
+        vectorizer = clfobj.vectorizer
+        ser_func = clfobj.ser_func
+        des_func = clfobj.des_func
+        data = vectorizer.transform(data)
         print(clf)
-        print(filenames)
-        print(clf.predict(data))
+        y = clf.predict(data)
+        for file, x in zip(filenames, y):
+            print(file, composers[x])
 
         # for x, file in zip(data, filenames):
         #     print(file, ":", clf.predict(np.reshape(x, (1, -1))))

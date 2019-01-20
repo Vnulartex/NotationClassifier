@@ -2,3 +2,4 @@
 .ipinb_checkpoints/
 __pycache__/
 chords.csv
+input/

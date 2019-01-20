@@ -9,6 +9,15 @@ from collections import Counter
 from fractions import Fraction
 
 
+class Classifier:
+    def __init__(self, clf, composers, vectorizer, ser_func, des_func):
+        self.clf = clf
+        self.composers = composers
+        self.vectorizer = vectorizer
+        self.ser_func = ser_func
+        self.des_func = des_func
+
+
 def get_data_counts(y, composer_names):
     counts = Counter(y)
     return {composer_names[key]: value for key, value in counts.items()}
@@ -36,11 +45,12 @@ def load_folder(folder, dataset):
     if (dataset not in ["chords", "chords_t", "durations"]):
         raise ValueError("Invalid dataset type")
     folder = os.path.join(os.getcwd(), folder)
-    paths = [os.path.join(folder, f) for f in os.listdir(
+    files = [f for f in os.listdir(
         folder) if f.endswith(".mxl") or f.endswith(".mid")]
+    paths = [os.path.join(folder, f) for f in files]
 
     x = []
-    for path in paths[:1]:
+    for path in paths:
         score, k = maker.parse(path)
         if(dataset == "chords_t"):
             score_t = score.transpose((k*5) % 12)
@@ -49,7 +59,7 @@ def load_folder(folder, dataset):
             x.append(maker.chords(score))
         else:
             x.append(maker.durations(score))
-    return (x, paths)
+    return (x, files)
 
 
 def load(features_type, composer_names, train_count=None, df=None):
@@ -90,7 +100,8 @@ def load(features_type, composer_names, train_count=None, df=None):
 
 
 def main():
-    print(load_folder("midis", "chords"))
+    pass
+    # print(load_folder("midis", "chords"))
 
     # y_train = load("chords_t", ["debussy", "mozart",
     #                             "beethoven", "tchaikovsky", "victoria"])[2]
