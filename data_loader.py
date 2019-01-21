@@ -5,6 +5,7 @@ import ast
 import os
 import music21
 import data_maker as maker
+from tqdm import tqdm
 from collections import Counter
 from fractions import Fraction
 
@@ -50,7 +51,7 @@ def load_folder(folder, dataset):
     paths = [os.path.join(folder, f) for f in files]
 
     x = []
-    for path in paths:
+    for path in tqdm(paths, desc="Loading files"):
         score, k = maker.parse(path)
         if(dataset == "chords_t"):
             score_t = score.transpose((k*5) % 12)
