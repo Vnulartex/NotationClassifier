@@ -1,5 +1,8 @@
 .mypy_cache/
-.ipinb_checkpoints/
+.ipynb_checkpoints/
 __pycache__/
 chords.csv
 input/
+
+*.pyc
+*.ipynb
