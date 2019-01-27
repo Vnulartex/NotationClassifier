@@ -112,9 +112,9 @@ def main():
             df = pd.read_csv(filename)
             done = df.iloc[:, 0].values
             paths = [f for f in os.listdir(
-                dir) if f.endswith(".mxl") and f not in done and os.path.getsize(f) < 1e5]
+                dir) if f.endswith(".mxl") and f not in done and os.path.getsize(os.path.join(dir, f)) < 1e5]
             Parallel(
-                n_jobs=1,
+                n_jobs=-1,
                 backend="multiprocessing")(delayed(extract)(f, dir, composer, data_type, funcs)
                                            for f in tqdm(paths, desc=f"processing {composer}/{data_type}"))
 
