@@ -4,7 +4,7 @@ import pandas as pd
 import ast
 import os
 import music21
-import data_maker as maker
+import modules.serializer as maker
 from tqdm import tqdm
 from collections import Counter
 from fractions import Fraction
@@ -42,25 +42,17 @@ def get_root(X):
     return [str([chord[0] for chord in example]) for example in X]
 
 
-def load_folder(folder, dataset):
+def load_file(path, dataset):
     if (dataset not in ["chords", "chords_t", "durations"]):
         raise ValueError("Invalid dataset type")
-    folder = os.path.join(os.getcwd(), folder)
-    files = [f for f in os.listdir(
-        folder) if f.endswith(".mxl") or f.endswith(".mid")]
-    paths = [os.path.join(folder, f) for f in files]
-
-    x = []
-    for path in tqdm(paths, desc="Loading files"):
-        score, k = maker.parse(path)
-        if(dataset == "chords_t"):
-            score_t = score.transpose((k*5) % 12)
-            x.append(maker.chords(score_t))
-        elif(dataset == "chords"):
-            x.append(maker.chords(score))
-        else:
-            x.append(maker.durations(score))
-    return (x, files)
+    score, k = maker.parse(path)
+    if(dataset == "chords_t"):
+        score_t = score.transpose((k*5) % 12)
+        return maker.chords(score_t)
+    elif(dataset == "chords"):
+        return maker.chords(score)
+    else:
+        return maker.durations(score)
 
 
 def load(features_type, composer_names, train_count=None, df=None):

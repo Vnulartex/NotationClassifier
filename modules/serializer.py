@@ -7,26 +7,7 @@ from collections import deque
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-
-# timeout function that lets move on beyond too big files.
-# by Thomas Ahle: http://stackoverflow.com/a/22348885
-#import signal
-
-
-# class timeout:
-#     def __init__(self, seconds=1, error_message='Timeout'):
-#         self.seconds = seconds
-#         self.error_message = error_message
-
-#     def handle_timeout(self, signum, frame):
-#         raise TimeoutError(self.error_message)
-
-#     def __enter__(self):
-#         signal.signal(signal.SIGALRM, self.handle_timeout)
-#         signal.alarm(self.seconds)
-
-#     def __exit__(self, type, value, traceback):
-#         signal.alarm(0)
+filename = "data/chords.csv"
 
 
 def pitches_tones(score):
@@ -76,19 +57,20 @@ def parse(path):
     return (score, k)
 
 
-def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
-    path = os.path.join(dir, filename)
+def extract(f: str, dir: str, composer: str, datasetType: str, funcs):
+    path = os.path.join(dir, f)
     dat_path = path+".dat"
     dat_path_t = path+"_t.dat"
     if(os.path.exists(dat_path) and os.path.exists(dat_path_t)):  # exist already parsed dat file
         score = music21.converter.thaw(dat_path)
         score_t = music21.converter.thaw(dat_path_t)
-    elif(os.path.getsize(path) < 1e5):
+    elif(os.path.getsize(path) > 1e5):
         return
-        # with timeout(seconds=600):
-        # try:
     else:
-        score, k = parse(path)
+        try:
+            score, k = parse(path)
+        except:
+            return
         score_t = score.transpose((k*5) % 12)
         music21.converter.freeze(
             score, fmt="pickle", fp=path+".dat")
@@ -99,17 +81,16 @@ def extract(filename: str, dir: str, composer: str, datasetType: str, funcs):
     data.append(chords(score))
     data.append(durations(score))
     pd.DataFrame([data]).to_csv(
-        "chords.csv", header=False, index=False, mode="a")
+        filename, header=False, index=False, mode="a")
     # except:
     #     print(f"file {filename} file could not be parsed")
 
 
 def main():
-    root = "D:\\Disk Google\\ROP\\Data-preprocessed"
-    composers = ["debussy", "victoria", "tchaikovsky", "mozart", "beethoven"]
+    root = "C:\\Users\\jiriv\\Disk Google\\ROP\\Data-preprocessed"
+    composers = ["bach-js", "handel", "haydn"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
-    filename = "chords.csv"
     ovt = None
     while True:
         key = input(f"Overwrite file {filename}? [Y/N]\n")
@@ -128,11 +109,10 @@ def main():
     for composer in composers:
         for data_type in datasetType:
             dir = os.path.join(root, composer, data_type)
-            df = pd.read_csv("chords.csv")
+            df = pd.read_csv(filename)
             done = df.iloc[:, 0].values
             paths = [f for f in os.listdir(
-                dir) if f.endswith(".mxl") and f not in done]
-            # paths = ["ar2.mid"]
+                dir) if f.endswith(".mxl") and f not in done and os.path.getsize(f) < 1e5]
             Parallel(
                 n_jobs=1,
                 backend="multiprocessing")(delayed(extract)(f, dir, composer, data_type, funcs)
