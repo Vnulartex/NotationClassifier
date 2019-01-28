@@ -9,6 +9,8 @@ from tqdm import tqdm
 from collections import Counter
 from fractions import Fraction
 
+filename = "C:\\Users\\jiriv\\Disk Google\\ROP\\chords.csv"
+
 
 class Classifier:
     def __init__(self, clf, composers, vectorizer, ser_func, des_func):
@@ -69,7 +71,7 @@ def load(features_type, composer_names, train_count=None, df=None):
         raise ValueError("Invalid dataset type")
 
     if (df == None):
-        df = pd.read_csv("chords.csv")
+        df = pd.read_csv(filename)
     X_train, X_test, y_train, y_test = [], [], [], []
     for i, comp in enumerate(composer_names):
         for d_type in ("train", "test"):

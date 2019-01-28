@@ -7,7 +7,7 @@ from collections import deque
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-filename = "data/chords.csv"
+filename = "C:\\Users\\jiriv\\Disk Google\\ROP\\chords.csv"
 
 
 def pitches_tones(score):
@@ -76,7 +76,7 @@ def extract(f: str, dir: str, composer: str, datasetType: str, funcs):
             score, fmt="pickle", fp=path+".dat")
         music21.converter.freeze(
             score_t, fmt="pickle", fp=path+"_t.dat")
-    data = [filename, composer, datasetType]
+    data = [f, composer, datasetType]
     data.append(chords(score_t))
     data.append(chords(score))
     data.append(durations(score))
@@ -88,7 +88,7 @@ def extract(f: str, dir: str, composer: str, datasetType: str, funcs):
 
 def main():
     root = "C:\\Users\\jiriv\\Disk Google\\ROP\\Data-preprocessed"
-    composers = ["bach-js", "handel", "haydn"]
+    composers = ["handel"]
     datasetType = ["train", "test"]
     funcs = [chords, durations]
     ovt = None
