@@ -12,15 +12,6 @@ from fractions import Fraction
 filename = "C:\\Users\\jiriv\\Disk Google\\ROP\\chords.csv"
 
 
-class Classifier:
-    def __init__(self, clf, composers, vectorizer, ser_func, des_func):
-        self.clf = clf
-        self.composers = composers
-        self.vectorizer = vectorizer
-        self.ser_func = ser_func
-        self.des_func = des_func
-
-
 def get_data_counts(y, composer_names):
     counts = Counter(y)
     return {composer_names[key]: value for key, value in counts.items()}

@@ -1,0 +1,2 @@
+
+    y = classify(data, clfobj)

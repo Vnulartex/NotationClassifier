@@ -1,34 +1,33 @@
 import os
 import pickle
 import modules.data_loader as loader
+import modules.clfobj
 import numpy as np
 from tqdm import tqdm
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-def main(files, clfpath):
-    data = []
-    with open(clfpath, "rb") as f:
-        clfobj = pickle.load(f)
-    clf = clfobj.clf
-    composers = clfobj.composers
-    vectorizer = clfobj.vectorizer
-    ser_func = clfobj.ser_func
-    des_func = clfobj.des_func
-    for path in tqdm(files, desc="Parsing files"):
-        score = loader.load_file(path, ser_func)
-        data.append(score)
-    data = des_func(data)
-    data = vectorizer.transform(data)
-    print(clf)
-    y = clf.predict(data)
-    for f, x in zip(files, y):
-        print(f, "classified as:", composers[x])
+def classify(data, clfobj):
+    data = clfobj.des_func(data)
+    data = clfobj.vectorizer.transform(data)
+    y = clfobj.clf.predict(data)
+    return y
 
 
 if __name__ == "__main__":
-    files = [f for f in os.listdir("input") if f.endswith(
-        ".mxl") or f.endswith(".mid")]
-    clf = [f for f in os.listdir("classifiers") if f.endswith(
+    clf_folder = "classifiers"
+    input_folder = "input"
+    files = [os.path.join(input_folder, f) for f in os.listdir(input_folder) if f.endswith(
+        ".mxl") or f.endswith(".mid")][:1]
+    clfpath = [os.path.join(clf_folder, f) for f in os.listdir(clf_folder) if f.endswith(
         ".dat")][0]
-    main(files, clf)
+    with open(clfpath, "rb") as f:
+        clfobj = pickle.load(f)
+    data = []
+    for path in tqdm(files, desc="Parsing files"):
+        score = loader.load_file(path, clfobj.ser_func)
+        data.append(score)
+    print(clfobj.clf)
+    y = classify(data, clfobj)
+    for f, x in zip(files, y):
+        print(f, "classified as:", clfobj.composers[x])
