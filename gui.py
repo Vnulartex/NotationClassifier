@@ -4,7 +4,7 @@ import threading
 import os
 from time import sleep
 from tkinter import END, Button, E, Entry, IntVar, Label, Tk, W, filedialog, DISABLED, NORMAL
-from tkinter.ttk import Progressbar
+from tkinter.ttk import Progressbar, Separator
 
 import classifier
 import modules.data_loader as loader
@@ -17,45 +17,53 @@ class Gui:
         root.title("Midi classificator")
 
         self.clf = None
-        self.clf_label = Label(root, text="Classifier:")
-        self.clf_label.grid(columnspan=2)
+        self.clf_label = Label(root, text="Classifier:",
+                               font=("DejaVu Sans", -14, "bold"))
+        self.clf_label.grid(columnspan=2, pady=(10, 0))
 
         self.clf_value_label = Label(root, text="Choose some classifier")
-        self.clf_value_label.grid(columnspan=2)
+        self.clf_value_label.grid(columnspan=2, padx=20)
 
-        self.clf_label = Label(root, text="Classes:")
-        self.clf_label.grid(columnspan=2)
+        self.clf_label = Label(root, text="Classes:",
+                               font=("DejaVu Sans", -14, "bold"))
+        self.clf_label.grid(columnspan=2, pady=(10, 0))
 
         self.clf_class_label = Label(root, text="Choose some classifier")
         self.clf_class_label.grid(columnspan=2)
 
         self.clf_button = Button(
             root, text="Select classifier", command=self.get_classifier)
-        self.clf_button.grid(columnspan=2)
+        self.clf_button.grid(columnspan=2, pady=10)
+
+        Separator(root, orient="horizontal").grid(columnspan=2, sticky=W+E)
 
         self.filepaths = None
-        self.files_label = Label(root, text="Files to classify:")
-        self.files_label.grid(columnspan=2)
+        self.files_label = Label(
+            root, text="Files:", font=("DejaVu Sans", -14, "bold"))
+        self.files_label.grid(column=0, pady=(10, 0), padx=20)
 
-        self.y_label = Label(root, text="Classified as:")
-        self.y_label.grid(column=1, row=5)
+        self.y_label = Label(
+            root, text="Classifier output:", font=("DejaVu Sans", -14, "bold"))
+        self.y_label.grid(column=1, row=6, pady=(10, 0), padx=20)
 
-        self.files_values_label = Label(root, text="Choose some files")
-        self.files_values_label.grid()
+        self.files_values_label = Label(root)
+        self.files_values_label.grid(padx=20)
 
-        self.files_y_label = Label(root, text="Choose some files")
-        self.files_y_label.grid(column=1, row=6)
+        self.files_y_label = Label(root)
+        self.files_y_label.grid(column=1, row=7, padx=20)
 
         self.files_button = Button(
             root, text="Select midi files", command=self.get_files)
-        self.files_button.grid(columnspan=2)
+        self.files_button.grid(columnspan=2, pady=10)
 
         self.progressbar = Progressbar(
             root, orient="horizontal", mode="indeterminate")
 
+        Separator(root, orient="horizontal").grid(columnspan=2, sticky=W+E)
+
         self.classify_button = Button(
-            root, text="Classify", command=self.classify, state=DISABLED)
-        self.classify_button.grid(columnspan=2)
+            root, text="Classify", command=self.classify, state=DISABLED, height=2, width=10)
+        self.classify_button.grid(columnspan=2, pady=10)
 
     def get_files(self):
         self.filepaths = filedialog.askopenfilenames(
@@ -63,10 +71,12 @@ class Gui:
         if len(self.filepaths) == 0:
             self.filepaths = None
             self.files_values_label["text"] = ""
+            self.files_y_label["text"] = ""
             self.set_button_state()
             return
         filenames = [os.path.basename(f) for f in self.filepaths]
         self.files_values_label["text"] = str.join("\n", filenames)
+        self.files_y_label["text"] = ""
         self.set_button_state()
 
     def get_classifier(self):
